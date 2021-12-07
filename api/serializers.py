@@ -1,24 +1,9 @@
-from usuario.models import Carro, Usuario
 from rest_framework import  serializers
+from .models import resultados_michel
 
-# class UserSerializer(serializers.HyperlinkedModelSerializer):
-#     class Meta:
-#         model = Usuario
-#         fields = [
-#             "url", "password", "last_login", "nome", "sobrenome", "genero", 
-#             "cpf", "rg", "dataNascimento", "email", "cep", "bairro", "logradouro", 
-#             "complemento", "numeroResidencia", "telefone", "numeroCelular", "idGroup", 
-#             "dataHorarioCriacao", "dataDesativacao", "is_active", "is_staff", "is_superuser", 
-#             "groups"
-#         ]
-
-class CalculatorCarroSerializer(serializers.HyperlinkedModelSerializer):
+class ResultadosSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Carro
-        fields = ["cor"]
+        model = resultados_michel
+        fields = ["distancia_percorrida","tempo_em_movimento","tempo_parado","serial"]
 
 
-class CarroSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Carro
-        fields = ["nome","cor","ano"]

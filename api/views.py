@@ -1,63 +1,80 @@
-from usuario.models import Carro
 from rest_framework.response import Response
-from .serializers import CarroSerializer,CalculatorCarroSerializer
+from .serializers import ResultadosSerializer
 from rest_framework.decorators import api_view
 from rest_framework import status
+from datetime import datetime
+from django.utils import timezone
+from .models import dados_rastreamento,resultados_michel
+from math import radians, cos, sin, asin, sqrt
 
-# #importar UserSerializer do forms
-# class UserViewSet(viewsets.ModelViewSet):
-#     queryset = Usuario.objects.all()
-#     serializer_class = UserSerializer
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points 
+    on the earth (specified in decimal degrees)
+    """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    # Radius of earth in kilometers is 6371
+    km = 6371* c
+    return km
 
-# #importar UserSerializer do forms
-# class CarroViewSet(viewsets.ModelViewSet):
-#     queryset = Carro.objects.all()
-#     serializer_class = CarroSerializer
-
-
-@api_view(['GET', 'POST'])
-def viewcarro(request):
-    if request.method == 'GET':
-        data = Carro.objects.all()
-        serializer = CalculatorCarroSerializer(data, context={'request': request}, many=True)
-        return Response(serializer.data)
-
-    
-    elif request.method == 'POST':
-        serializer = CalculatorCarroSerializer(data=request.data)
+@api_view(['POST'])
+def ViewCalcula_metricas(request):
+    now = timezone.now()
+    if request.method == 'POST':
+        serializer = request.data
         
-        if serializer.is_valid():
-            # serializer.save()
-            
-            listCarro = Carro.objects.filter(cor__contains=serializer.data["cor"])
-            print(listCarro)
-            for carro in listCarro:
-                carro.nome="cassetinho"
-                carro.save()
-            
-            return Response(status=status.HTTP_201_CREATED)
-            
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        DataInicio = datetime.strptime(serializer["datahora_inicio"], '%d/%m/%Y %H:%M:%S')
+        DataFim = datetime.strptime(serializer["datahora_fim"], '%d/%m/%Y %H:%M:%S')
+        Inicio = datetime.timestamp(DataInicio)
+        Fim = datetime.timestamp(DataFim)
+        
+        listDadosRastreamentos = dados_rastreamento.objects.filter( serial=serializer["serial"],
+                datahora__gte = Inicio,datahora__lte = Fim)
+        
+        
+        tempo_em_movimento = 0
+        tempo_parado = 0
+        distancia_percorrida = 0
+        
+        if not listDadosRastreamentos:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        #ver qual intervalo de tempo que ele manda e somar e subtrair na api
+        
+        for data in listDadosRastreamentos:
+            if data.situacao_movimento:
+                tempo_em_movimento += 200
+                distancia_percorrida += haversine()
+
+        
+        
+        objResultado = resultados_michel()
+        objResultado.distancia_percorrida = distancia_percorrida
+        objResultado.tempo_em_movimento = tempo_em_movimento
+        objResultado.tempo_parado = tempo_parado
+        objResultado.serial = serializer["serial"]
+        objResultado.save()
+
+        return Response()
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def ViewCrudCarro(request, pk):
-    try:
-        objCarro = Carro.objects.get(pk=pk)
-    except Carro.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+@api_view(['GET'])
+def ViewRetorna_metricas(request):
 
-    if request.method == 'GET':
-        serializer = CarroSerializer(objCarro)
+ if request.method == 'GET':
+        
+        data = resultados_michel.objects.all()
+        
+        serializer = ResultadosSerializer(data,context={'request': request}, many=True)
+        
         return Response(serializer.data)
+            
 
-    elif request.method == 'PUT':
-        serializer = CarroSerializer(objCarro, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
-        objCarro.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
