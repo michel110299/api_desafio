@@ -3,8 +3,13 @@ Django==3.2
 django-filter==21.1
 djangorestframework==3.12.4
 importlib-metadata==4.8.2
+joblib==1.1.0
 Markdown==3.3.6
+numpy==1.19.5
+pkg_resources==0.0.0
 pytz==2021.3
+scikit-learn==0.22
+scipy==1.5.4
 sqlparse==0.4.2
 typing_extensions==4.0.1
 zipp==3.6.0

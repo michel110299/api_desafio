@@ -3,26 +3,10 @@ from .serializers import ResultadosSerializer
 from rest_framework.decorators import api_view
 from rest_framework import status
 from datetime import datetime
-from datetime import timedelta
-from django.utils import timezone
 from .models import dados_rastreamento,resultados_michel
-from math import radians, cos, sin, asin, sqrt
+from sklearn.cluster import KMeans
+from .validade import qick_distance
 
-def haversine(lon1, lat1, lon2, lat2):
-    """
-    Calculate the great circle distance between two points 
-    on the earth (specified in decimal degrees)
-    """
-    # convert decimal degrees to radians 
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-    # haversine formula 
-    dlon = lon2 - lon1 
-    dlat = lat2 - lat1 
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a)) 
-    # Radius of earth in kilometers is 6371
-    km = 6371* c
-    return km
 
 @api_view(['POST'])
 def ViewCalcula_metricas(request):
@@ -34,45 +18,49 @@ def ViewCalcula_metricas(request):
         Inicio = datetime.timestamp(DataInicio)
         Fim = datetime.timestamp(DataFim)
         
-        listDadosRastreamentos = dados_rastreamento.objects.filter( serial=serializer["serial"],
-                datahora__gte = Inicio,datahora__lte = Fim).order_by("datahora")
-
+        listDadosRastreamentos = dados_rastreamento.objects.filter(serial=serializer["serial"],
+            datahora__gte = Inicio,datahora__lte = Fim).order_by("datahora")
 
         tempo_em_movimento = 0
         tempo_parado = 0
         distancia_percorrida = 0
+        quantidadeParadas = 0
         
         if not listDadosRastreamentos:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
-
         for item in range(len(listDadosRastreamentos)):
-            if listDadosRastreamentos[item].situacao_movimento:
-                if not item == 0:
+            if not item == 0:
+                if listDadosRastreamentos[item].situacao_movimento == True:
                     tempo_em_movimento += listDadosRastreamentos[item].datahora-listDadosRastreamentos[item-1].datahora
-            else:
-                if not item == 0:
+                else:
                     tempo_parado += listDadosRastreamentos[item].datahora - listDadosRastreamentos[item-1].datahora
+            
+            if not item == len(listDadosRastreamentos)-1:
+                distancia_percorrida += qick_distance(listDadosRastreamentos[item].latitude,listDadosRastreamentos[item].longitude,listDadosRastreamentos[item+1].latitude,listDadosRastreamentos[item+1].longitude)
+
+                if listDadosRastreamentos[item].situacao_movimento and not listDadosRastreamentos[item].situacao_movimento:
+                    quantidadeParadas+=1
         
-        print(timedelta(seconds=tempo_em_movimento))
-        print(timedelta(seconds=tempo_parado))
-
+        distancia_percorrida=round(distancia_percorrida, 1)
         
-        # for data in listDadosRastreamentos:
-        #     
-                 
-        #         distancia_percorrida += haversine()
-
-
+        response = {
+            "distancia_percorrida": distancia_percorrida,
+            "tempo_em_movimento": tempo_em_movimento, 
+            "tempo_parado": tempo_parado,
+            "centroides_paradas":None,
+            "serial": serializer["serial"]
+        }
+        
         
         objResultado = resultados_michel()
         objResultado.distancia_percorrida = distancia_percorrida
         objResultado.tempo_em_movimento = tempo_em_movimento
         objResultado.tempo_parado = tempo_parado
         objResultado.serial = serializer["serial"]
-        # objResultado.save()
+        objResultado.save()
 
-        return Response()
+        return Response(response)
 
 
 @api_view(['GET'])
