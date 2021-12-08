@@ -3,8 +3,8 @@ from django.db import models
 class dados_rastreamento(models.Model):
     serial = models.CharField(verbose_name = 'Nome', max_length = 194)
     ignicao = models.BooleanField(verbose_name = 'ignicao')
-    situacao_movimento = models.BooleanField(verbose_name = 'situacao_movimento' )
-    velocidade = models.IntegerField(verbose_name = 'velocidade' )
+    situacao_movimento = models.BooleanField(verbose_name = 'situacao movimento' )
+    velocidade = models.FloatField(verbose_name = 'velocidade' )
     latitude = models.FloatField(verbose_name = 'latitude' )
     longitude = models.FloatField(verbose_name = 'longitude' )
     orientacao = models.FloatField(verbose_name = 'orientação' )

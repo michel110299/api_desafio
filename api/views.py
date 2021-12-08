@@ -3,6 +3,7 @@ from .serializers import ResultadosSerializer
 from rest_framework.decorators import api_view
 from rest_framework import status
 from datetime import datetime
+from datetime import timedelta
 from django.utils import timezone
 from .models import dados_rastreamento,resultados_michel
 from math import radians, cos, sin, asin, sqrt
@@ -25,7 +26,6 @@ def haversine(lon1, lat1, lon2, lat2):
 
 @api_view(['POST'])
 def ViewCalcula_metricas(request):
-    now = timezone.now()
     if request.method == 'POST':
         serializer = request.data
         
@@ -35,9 +35,9 @@ def ViewCalcula_metricas(request):
         Fim = datetime.timestamp(DataFim)
         
         listDadosRastreamentos = dados_rastreamento.objects.filter( serial=serializer["serial"],
-                datahora__gte = Inicio,datahora__lte = Fim)
-        
-        
+                datahora__gte = Inicio,datahora__lte = Fim).order_by("datahora")
+
+
         tempo_em_movimento = 0
         tempo_parado = 0
         distancia_percorrida = 0
@@ -45,21 +45,32 @@ def ViewCalcula_metricas(request):
         if not listDadosRastreamentos:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
-        #ver qual intervalo de tempo que ele manda e somar e subtrair na api
+
+        for item in range(len(listDadosRastreamentos)):
+            if listDadosRastreamentos[item].situacao_movimento:
+                if not item == 0:
+                    tempo_em_movimento += listDadosRastreamentos[item].datahora-listDadosRastreamentos[item-1].datahora
+            else:
+                if not item == 0:
+                    tempo_parado += listDadosRastreamentos[item].datahora - listDadosRastreamentos[item-1].datahora
         
-        for data in listDadosRastreamentos:
-            if data.situacao_movimento:
-                tempo_em_movimento += 200
-                distancia_percorrida += haversine()
+        print(timedelta(seconds=tempo_em_movimento))
+        print(timedelta(seconds=tempo_parado))
 
         
+        # for data in listDadosRastreamentos:
+        #     
+                 
+        #         distancia_percorrida += haversine()
+
+
         
         objResultado = resultados_michel()
         objResultado.distancia_percorrida = distancia_percorrida
         objResultado.tempo_em_movimento = tempo_em_movimento
         objResultado.tempo_parado = tempo_parado
         objResultado.serial = serializer["serial"]
-        objResultado.save()
+        # objResultado.save()
 
         return Response()
 
