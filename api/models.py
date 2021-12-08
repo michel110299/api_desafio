@@ -17,10 +17,24 @@ class dados_rastreamento(models.Model):
     def __str__(self):
         return self.serial
 
+class coordenada(models.Model):
+    latitude = models.FloatField(verbose_name = 'latitude' )
+    longitude = models.FloatField(verbose_name = 'longitude' )
+
+    class Meta:
+        verbose_name = "Coordenada"
+        verbose_name_plural = "Coordenadas"
+
+
+    def __str__(self):
+        return f"{self.latitude} {self.longitude}"
+
+
 class resultados_michel(models.Model):
     distancia_percorrida = models.FloatField(verbose_name = 'distancia percorrida' )
     tempo_em_movimento = models.IntegerField(verbose_name = 'Tempo em movimento' )
     tempo_parado = models.IntegerField(verbose_name = 'tempo parado')
+    centroides_paradas = models.ManyToManyField(coordenada,related_name="centroides_paradas_resultados_michel")
     serial = models.CharField(verbose_name = 'Nome', max_length = 194)
 
 
