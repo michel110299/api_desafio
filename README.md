@@ -14,7 +14,7 @@
 ### Pré-requisitos
 
 Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
-[Git](https://git-scm.com), [Python](https://www.python.org/), [Virtualenv] (https://virtualenv.pypa.io/en/latest/). 
+[Git](https://git-scm.com), [Python](https://www.python.org/), [Virtualenv](https://virtualenv.pypa.io/en/latest/). 
 Além disto é bom ter um editor para trabalhar com o código como [VSCode](https://code.visualstudio.com/).
 
 ### 🎲 Rodando o Back End (servidor)
