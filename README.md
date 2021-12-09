@@ -66,5 +66,5 @@ python manage.py runserver
 <a href="https://github.com/michel110299">
  <img style="border-radius: 50%;" src="https://github.com/michel110299.png" width="100px;" alt=""/>
  <br />
- <sub><b>Michel Lemes </b></sub></a> <a href="https://https://github.com/michel110299" title="Git">🚀</a>
+ <sub><b>Michel Lemes </b></sub></a> <a href="https://https://github.com/michel110299" title="Git">:kissing_smiling_eyes:</a>
 
