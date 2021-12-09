@@ -8,5 +8,4 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path(r'calcula_metricas',ViewCalcula_metricas),
     path(r'retorna_metricas',ViewRetorna_metricas)
-    
 ]

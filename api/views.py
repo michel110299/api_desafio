@@ -49,10 +49,13 @@ def ViewCalcula_metricas(request):
             listCorrds.append([listDadosRastreamentos[item].latitude,listDadosRastreamentos[item].longitude])
 
         distancia_percorrida=round(distancia_percorrida, 1)
-
-        kmeans = KMeans(n_clusters = quantidadeParadas, #numero de clusters
+        kmeans = KMeans(n_clusters = 1, #numero de clusters
         init = 'k-means++', n_init = 10, #algoritmo que define a posição dos clusters de maneira mais assertiva
         max_iter = 300) #numero máximo de iterações
+        if quantidadeParadas != 0:
+            kmeans = KMeans(n_clusters = quantidadeParadas, #numero de clusters
+            init = 'k-means++', n_init = 10, #algoritmo que define a posição dos clusters de maneira mais assertiva
+            max_iter = 300) #numero máximo de iterações
         kmeans.fit_predict(listCorrds)
         
 
