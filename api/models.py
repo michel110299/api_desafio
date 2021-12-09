@@ -34,7 +34,7 @@ class resultados_michel(models.Model):
     distancia_percorrida = models.FloatField(verbose_name = 'distancia percorrida' )
     tempo_em_movimento = models.IntegerField(verbose_name = 'Tempo em movimento' )
     tempo_parado = models.IntegerField(verbose_name = 'tempo parado')
-    centroides_paradas = models.ManyToManyField(coordenada,related_name="centroides_paradas_resultados_michel")
+    centroides_paradas = models.ManyToManyField(coordenada, related_name="centroides_paradas_resultados_michel")
     serial = models.CharField(verbose_name = 'Nome', max_length = 194)
 
 
