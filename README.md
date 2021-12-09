@@ -21,7 +21,7 @@ Além disto é bom ter um editor para trabalhar com o código como [VSCode](http
 
 ```bash
 # Clone este repositório
-$ git clone <https://github.com/michel110299/api_desafio>
+$ git clone https://github.com/michel110299/api_desafio
 
 # Acesse a pasta do projeto no terminal/cmd
 $ cd api_desafio
@@ -33,7 +33,7 @@ $ python -m venv env
 $env\Scripts\activate
 
 #Ative sua máquina virtual(linux)
-$ source env\bin\activate
+$ source env/bin/activate
 
 #Atualize o pip
 $ python -m pip install --upgrade pip
